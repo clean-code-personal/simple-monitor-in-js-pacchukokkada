@@ -1,18 +1,31 @@
-const {expect} = require('chai');
-
-function batteryIsOk(temperature, soc, charge_rate) {
-    if (temperature < 0 || temperature > 45) {
-        console.log('Temperature is out of range!');
-        return false;
-    } else if (soc < 20 || soc > 80) {
-        console.log('State of Charge is out of range!')
-        return false;
-    } else if (charge_rate > 0.8) {
-        console.log('Charge rate is out of range!');
-        return false;
-    }
-    return true;
+const factors = {
+    'temperature' : {'name':'temperature', 'max':45, 'min':0, 'unit':"°C" },
+    'stateOfCharge' : {'name':'state of charge','max':80, 'min':20, 'unit':"%" },
+    'chargeRate' : {'name':'charge rate', 'max':0.8, 'min':0, 'unit':"C"}
 }
 
-expect(batteryIsOk(25, 70, 0.7)).to.be.true;
-expect(batteryIsOk(50, 85, 0)).to.be.false;
+function checkBattery(current_value,factor){
+    let isOk = true; 
+    if(current_value > factors[factor].max) {
+        console.log(`${factors[factor].name} is too high (${current_value}${factors[factor].unit})`)
+        isOk = false;
+    }
+    else if(current_value < factors[factor].min ){
+        console.log(`${factors[factor].name} is too low (${current_value}${factors[factor].unit})`)
+        isOk = false;
+    }
+    return isOk;
+}
+
+
+function batteryIsOk(temperature_value, soc_value, charge_rate_value) {
+    isTemperatureOk = checkBattery(temperature_value,'temperature');
+    isStateOfChargeOk = checkBattery(soc_value,'stateOfCharge');
+    isChargeRateOk = checkBattery(charge_rate_value,'chargeRate');
+    return isTemperatureOk && isStateOfChargeOk && isChargeRateOk;
+}
+batteryIsOk(60,10,0.6);
+
+module.exports = {
+    batteryIsOk
+}
